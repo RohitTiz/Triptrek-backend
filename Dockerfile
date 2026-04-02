@@ -7,13 +7,13 @@ WORKDIR /app
 # Copy pom.xml first (for dependency caching)
 COPY pom.xml .
 
-# Download dependencies (cached layer)
+# Download all dependencies
 RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src ./src
 
-# Build the application (skip tests)
+# Build the application (skip tests as per your pom.xml)
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run the application
@@ -23,9 +23,9 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR from build stage
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/backend-1.0.0.jar app.jar
 
-# Create a non-root user to run the application
+# Create a non-root user to run the application (security)
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
